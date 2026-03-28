@@ -64,7 +64,7 @@ namespace LegacyUpdater
         /// URL do arquivo base.zip — instalação completa do zero.
         /// Baixado apenas quando não há instalação local ou ao forçar update.
         /// </summary>
-        public const string BASE_ZIP_URL = "https://example.com/base.zip";
+        public const string BASE_ZIP_URL = "https://rookgaardlegacy.com/updater/api/base";
 
         // ============================================================
         // JANELA / DIMENSÕES
