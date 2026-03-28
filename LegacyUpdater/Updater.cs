@@ -135,32 +135,30 @@ namespace LegacyUpdater
                 }
             }
 
-            // Valida assinatura ZIP (magic bytes PK\x03\x04) antes de tentar extrair
-            ValidateZipMagicBytes(destPath);
+            // Valida a estrutura completa do ZIP antes de tentar extrair.
+            // Detecta tanto respostas de erro do servidor (HTML) quanto downloads truncados.
+            ValidateZipFile(destPath);
 
             progress?.Report(100);
         }
 
         /// <summary>
-        /// Verifica se o arquivo começa com a assinatura ZIP (50 4B 03 04).
-        /// Detecta casos em que o servidor retornou uma página de erro (HTML) no lugar do ZIP.
+        /// Abre o ZIP e valida sua estrutura completa (incluindo o diretório central).
+        /// Detecta arquivos truncados que passariam em uma verificação simples de magic bytes.
         /// </summary>
-        private static void ValidateZipMagicBytes(string path)
+        private static void ValidateZipFile(string path)
         {
-            var magic = new byte[4];
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            try
             {
-                int bytesRead = fs.Read(magic, 0, 4);
-                if (bytesRead < 4 ||
-                    magic[0] != 0x50 || magic[1] != 0x4B ||
-                    magic[2] != 0x03 || magic[3] != 0x04)
-                {
-                    TryDelete(path);
-                    throw new InvalidDataException(
-                        $"O arquivo baixado não é um ZIP válido: {Path.GetFileName(path)}. " +
-                        "O servidor pode ter retornado uma resposta de erro em vez do arquivo. " +
-                        "Tente novamente ou verifique a URL configurada.");
-                }
+                using (ZipFile.OpenRead(path)) { }
+            }
+            catch (InvalidDataException ex)
+            {
+                TryDelete(path);
+                throw new InvalidDataException(
+                    $"O arquivo baixado está corrompido ou incompleto: {Path.GetFileName(path)}. " +
+                    "O download pode ter sido interrompido ou o servidor enviou um arquivo inválido. " +
+                    "Tente novamente.", ex);
             }
         }
 
@@ -181,8 +179,6 @@ namespace LegacyUpdater
         {
             return Task.Run(() =>
             {
-                Directory.CreateDirectory(destDir);
-
                 ZipArchive archive;
                 try
                 {
@@ -198,6 +194,9 @@ namespace LegacyUpdater
 
                 using (archive)
                 {
+                    // Cria o diretório de destino apenas após confirmar que o ZIP é válido
+                    Directory.CreateDirectory(destDir);
+
                     // Normaliza o diretório destino com separador no final para comparação segura
                     var fullDestDir = Path.GetFullPath(destDir);
                     if (!fullDestDir.EndsWith(Path.DirectorySeparatorChar.ToString()))
