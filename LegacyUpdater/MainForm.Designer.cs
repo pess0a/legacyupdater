@@ -1,5 +1,4 @@
 using System.Drawing;
-using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -145,24 +144,27 @@ namespace LegacyUpdater
         }
 
         /// <summary>
-        /// Tenta carregar a imagem de fundo de Resources/background.png
-        /// ao lado do executável. Se não encontrar, usa a cor de fundo.
+        /// Carrega background.png e icon.ico embutidos no assembly.
         /// </summary>
         private void LoadBackgroundImage()
         {
+            var asm = Assembly.GetExecutingAssembly();
+
             try
             {
-                var exeDir = Path.GetDirectoryName(
-                    Assembly.GetExecutingAssembly().Location) ?? ".";
-                var imgPath = Path.Combine(exeDir, "Resources", "background.png");
+                using (var stream = asm.GetManifestResourceStream("LegacyUpdater.Resources.background.png"))
+                    if (stream != null)
+                        this.picBackground.Image = Image.FromStream(stream);
+            }
+            catch { }
 
-                if (File.Exists(imgPath))
-                    this.picBackground.Image = Image.FromFile(imgPath);
-            }
-            catch
+            try
             {
-                // Se não carregar, fica com a cor de fundo definida
+                using (var stream = asm.GetManifestResourceStream("LegacyUpdater.Resources.icon.ico"))
+                    if (stream != null)
+                        this.Icon = new Icon(stream);
             }
+            catch { }
         }
 
         #endregion
