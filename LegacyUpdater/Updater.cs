@@ -122,10 +122,46 @@ namespace LegacyUpdater
                         if (total > 0)
                             progress?.Report((int)(downloaded * 100L / total));
                     }
+
+                    // Detecta download truncado quando o servidor informou o tamanho
+                    if (total > 0 && downloaded != total)
+                    {
+                        TryDelete(destPath);
+                        throw new IOException(
+                            $"Download incompleto de {Path.GetFileName(destPath)}: " +
+                            $"esperado {total} bytes, recebido {downloaded} bytes. " +
+                            "Verifique sua conexão e tente novamente.");
+                    }
                 }
             }
 
+            // Valida assinatura ZIP (magic bytes PK\x03\x04) antes de tentar extrair
+            ValidateZipMagicBytes(destPath);
+
             progress?.Report(100);
+        }
+
+        /// <summary>
+        /// Verifica se o arquivo começa com a assinatura ZIP (50 4B 03 04).
+        /// Detecta casos em que o servidor retornou uma página de erro (HTML) no lugar do ZIP.
+        /// </summary>
+        private static void ValidateZipMagicBytes(string path)
+        {
+            var magic = new byte[4];
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                int bytesRead = fs.Read(magic, 0, 4);
+                if (bytesRead < 4 ||
+                    magic[0] != 0x50 || magic[1] != 0x4B ||
+                    magic[2] != 0x03 || magic[3] != 0x04)
+                {
+                    TryDelete(path);
+                    throw new InvalidDataException(
+                        $"O arquivo baixado não é um ZIP válido: {Path.GetFileName(path)}. " +
+                        "O servidor pode ter retornado uma resposta de erro em vez do arquivo. " +
+                        "Tente novamente ou verifique a URL configurada.");
+                }
+            }
         }
 
         // ----------------------------------------------------------------
