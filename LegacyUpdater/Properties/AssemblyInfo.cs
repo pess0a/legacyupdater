@@ -19,6 +19,3 @@ using System.Windows.Forms;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-// Habilita DPI awareness automático (Windows 10/11)
-[assembly: System.Windows.Forms.ApplicationDpiAwarenessSetting(
-    HighDpiMode.SystemAware)]
