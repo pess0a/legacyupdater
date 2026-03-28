@@ -12,6 +12,7 @@ namespace LegacyUpdater
         private readonly Updater _updater = new Updater();
         private CancellationTokenSource _cts;
         private VersionInfo _remoteVersion;
+        private VersionInfo _baseVersion;
 
         public MainForm()
         {
@@ -30,20 +31,28 @@ namespace LegacyUpdater
 
             try
             {
-                _remoteVersion = await _updater.GetRemoteVersionInfoAsync();
-                lblVersion.Text = $"v{_remoteVersion.Version}   {_remoteVersion.Date}";
+                var updateTask = _updater.GetRemoteVersionInfoAsync();
+                var baseTask   = _updater.GetBaseInfoAsync();
+                await Task.WhenAll(updateTask, baseTask);
 
-                var localVersion = _updater.GetLocalVersion();
+                _remoteVersion = updateTask.Result;
+                _baseVersion   = baseTask.Result;
 
-                if (localVersion == _remoteVersion.Version)
+                lblVersion.Text = $"Base: v{_baseVersion.Version}   Update: v{_remoteVersion.Version}   ({_remoteVersion.Date})";
+
+                var localVersion  = _updater.GetLocalVersion();
+                var exePath       = Path.Combine(Config.INSTALL_DIR, Config.GAME_EXECUTABLE);
+                var gameInstalled = File.Exists(exePath);
+
+                if (gameInstalled && localVersion == _remoteVersion.Version)
                 {
-                    // Já atualizado
+                    // Já atualizado e instalado
                     SetStatus(Config.STATUS_UP_TO_DATE, 100);
                     SetBusy(false);
                 }
                 else
                 {
-                    // Precisa atualizar
+                    // Precisa instalar ou atualizar
                     await RunUpdateAsync();
                 }
             }
