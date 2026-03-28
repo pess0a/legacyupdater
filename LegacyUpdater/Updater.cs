@@ -72,16 +72,16 @@ namespace LegacyUpdater
             return info;
         }
 
-        /// <summary>Retorna a versão instalada localmente, ou null se não houver.</summary>
-        public string GetLocalVersion()
+        /// <summary>Retorna a versão do update instalada localmente, ou null se não houver.</summary>
+        public string GetLocalUpdateVersion()
         {
             var path = Path.Combine(Config.INSTALL_DIR, Config.VERSION_FILE);
             if (!File.Exists(path)) return null;
             return File.ReadAllText(path).Trim();
         }
 
-        /// <summary>Salva a versão instalada no arquivo local.</summary>
-        public void SaveLocalVersion(string version)
+        /// <summary>Salva a versão do update instalada no arquivo local.</summary>
+        public void SaveLocalUpdateVersion(string version)
         {
             Directory.CreateDirectory(Config.INSTALL_DIR);
             File.WriteAllText(
@@ -89,11 +89,28 @@ namespace LegacyUpdater
                 version);
         }
 
-        /// <summary>Remove o arquivo de versão local, forçando re-download na próxima execução.</summary>
-        public void ClearLocalVersion()
+        /// <summary>Retorna a versão do base instalada localmente, ou null se não houver.</summary>
+        public string GetLocalBaseVersion()
         {
-            var path = Path.Combine(Config.INSTALL_DIR, Config.VERSION_FILE);
-            if (File.Exists(path)) File.Delete(path);
+            var path = Path.Combine(Config.INSTALL_DIR, Config.BASE_VERSION_FILE);
+            if (!File.Exists(path)) return null;
+            return File.ReadAllText(path).Trim();
+        }
+
+        /// <summary>Salva a versão do base instalada no arquivo local.</summary>
+        public void SaveLocalBaseVersion(string version)
+        {
+            Directory.CreateDirectory(Config.INSTALL_DIR);
+            File.WriteAllText(
+                Path.Combine(Config.INSTALL_DIR, Config.BASE_VERSION_FILE),
+                version);
+        }
+
+        /// <summary>Remove os arquivos de versão local, forçando re-download na próxima execução.</summary>
+        public void ClearLocalVersions()
+        {
+            TryDelete(Path.Combine(Config.INSTALL_DIR, Config.VERSION_FILE));
+            TryDelete(Path.Combine(Config.INSTALL_DIR, Config.BASE_VERSION_FILE));
         }
 
         // ----------------------------------------------------------------
@@ -257,15 +274,17 @@ namespace LegacyUpdater
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// Executa o fluxo completo:
-        ///   1. Download base.zip → extrai
-        ///   2. Download update.zip (URL da API) → extrai por cima
-        ///   3. Salva versão local
+        /// Executa o fluxo de atualização inteligente:
+        ///   - Se a versão local do base já coincidir com <paramref name="baseInfo"/>,
+        ///     pula o download do base.zip e vai direto ao update.
+        ///   - Caso contrário, baixa e extrai o base.zip primeiro.
+        ///   Depois baixa e extrai o update.zip por cima, e salva ambas as versões.
         ///
         /// Progresso reportado como (percentual 0–100, texto de status).
         /// </summary>
         public async Task RunFullUpdateAsync(
-            VersionInfo versionInfo,
+            VersionInfo baseInfo,
+            VersionInfo updateInfo,
             IProgress<(int Percent, string Status)> progress,
             CancellationToken ct = default)
         {
@@ -278,60 +297,96 @@ namespace LegacyUpdater
             var baseZipPath   = Path.Combine(tempDir, Config.BASE_ZIP_FILENAME);
             var updateZipPath = Path.Combine(tempDir, Config.UPDATE_ZIP_FILENAME);
 
+            bool skipBase = GetLocalBaseVersion() == baseInfo.Version;
+
             try
             {
-                // ── 1. Download base.zip (0 → 40%) ──────────────────────
-                progress?.Report((0, Config.STATUS_DOWNLOADING_BASE));
+                if (skipBase)
+                {
+                    // ── Base já atualizado: só baixa o update.zip (0 → 100%) ──
 
-                var baseInfo = await GetBaseInfoAsync(ct);
+                    // ── 1. Download update.zip (0 → 60%) ────────────────────
+                    progress?.Report((0, Config.STATUS_DOWNLOADING_UPDATE));
 
-                await DownloadFileAsync(
-                    baseInfo.Url,
-                    baseZipPath,
-                    new Progress<int>(p =>
-                        progress?.Report((
-                            p * 40 / 100,
-                            Config.STATUS_DOWNLOADING_BASE))),
-                    ct);
+                    await DownloadFileAsync(
+                        updateInfo.Url,
+                        updateZipPath,
+                        new Progress<int>(p =>
+                            progress?.Report((
+                                p * 60 / 100,
+                                Config.STATUS_DOWNLOADING_UPDATE))),
+                        ct);
 
-                // ── 2. Extração base.zip (40 → 60%) ─────────────────────
-                progress?.Report((40, Config.STATUS_EXTRACTING_BASE));
+                    // ── 2. Extração update.zip (60 → 99%) ───────────────────
+                    progress?.Report((60, Config.STATUS_EXTRACTING_UPDATE));
 
-                await ExtractZipAsync(
-                    baseZipPath,
-                    Config.INSTALL_DIR,
-                    new Progress<int>(p =>
-                        progress?.Report((
-                            40 + p * 20 / 100,
-                            Config.STATUS_EXTRACTING_BASE))),
-                    ct);
+                    await ExtractZipAsync(
+                        updateZipPath,
+                        Config.INSTALL_DIR,
+                        new Progress<int>(p =>
+                            progress?.Report((
+                                60 + p * 39 / 100,
+                                Config.STATUS_EXTRACTING_UPDATE))),
+                        ct);
+                }
+                else
+                {
+                    // ── Instala base + update completos ──────────────────────
 
-                // ── 3. Download update.zip (60 → 85%) ───────────────────
-                progress?.Report((60, Config.STATUS_DOWNLOADING_UPDATE));
+                    // ── 1. Download base.zip (0 → 40%) ──────────────────────
+                    progress?.Report((0, Config.STATUS_DOWNLOADING_BASE));
 
-                await DownloadFileAsync(
-                    versionInfo.Url,
-                    updateZipPath,
-                    new Progress<int>(p =>
-                        progress?.Report((
-                            60 + p * 25 / 100,
-                            Config.STATUS_DOWNLOADING_UPDATE))),
-                    ct);
+                    await DownloadFileAsync(
+                        baseInfo.Url,
+                        baseZipPath,
+                        new Progress<int>(p =>
+                            progress?.Report((
+                                p * 40 / 100,
+                                Config.STATUS_DOWNLOADING_BASE))),
+                        ct);
 
-                // ── 4. Extração update.zip (85 → 99%) ───────────────────
-                progress?.Report((85, Config.STATUS_EXTRACTING_UPDATE));
+                    // ── 2. Extração base.zip (40 → 60%) ─────────────────────
+                    progress?.Report((40, Config.STATUS_EXTRACTING_BASE));
 
-                await ExtractZipAsync(
-                    updateZipPath,
-                    Config.INSTALL_DIR,
-                    new Progress<int>(p =>
-                        progress?.Report((
-                            85 + p * 14 / 100,
-                            Config.STATUS_EXTRACTING_UPDATE))),
-                    ct);
+                    await ExtractZipAsync(
+                        baseZipPath,
+                        Config.INSTALL_DIR,
+                        new Progress<int>(p =>
+                            progress?.Report((
+                                40 + p * 20 / 100,
+                                Config.STATUS_EXTRACTING_BASE))),
+                        ct);
 
-                // ── 5. Salvar versão local ───────────────────────────────
-                SaveLocalVersion(versionInfo.Version);
+                    // Salva versão do base após extração bem-sucedida
+                    SaveLocalBaseVersion(baseInfo.Version);
+
+                    // ── 3. Download update.zip (60 → 85%) ───────────────────
+                    progress?.Report((60, Config.STATUS_DOWNLOADING_UPDATE));
+
+                    await DownloadFileAsync(
+                        updateInfo.Url,
+                        updateZipPath,
+                        new Progress<int>(p =>
+                            progress?.Report((
+                                60 + p * 25 / 100,
+                                Config.STATUS_DOWNLOADING_UPDATE))),
+                        ct);
+
+                    // ── 4. Extração update.zip (85 → 99%) ───────────────────
+                    progress?.Report((85, Config.STATUS_EXTRACTING_UPDATE));
+
+                    await ExtractZipAsync(
+                        updateZipPath,
+                        Config.INSTALL_DIR,
+                        new Progress<int>(p =>
+                            progress?.Report((
+                                85 + p * 14 / 100,
+                                Config.STATUS_EXTRACTING_UPDATE))),
+                        ct);
+                }
+
+                // ── Salvar versão do update ──────────────────────────────
+                SaveLocalUpdateVersion(updateInfo.Version);
 
                 progress?.Report((100, Config.STATUS_DONE));
             }
