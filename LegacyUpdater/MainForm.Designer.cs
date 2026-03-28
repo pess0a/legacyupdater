@@ -38,7 +38,6 @@ namespace LegacyUpdater
             this.picBackground.SizeMode = PictureBoxSizeMode.StretchImage;
             this.picBackground.TabStop  = false;
             this.picBackground.BackColor = Color.FromArgb(18, 18, 28); // fallback
-            LoadBackgroundImage();
 
             // ── panelOverlay ─────────────────────────────────────────────
             this.panelOverlay.Location = new Point(0, 320);
