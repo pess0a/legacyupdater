@@ -196,8 +196,8 @@ namespace LegacyUpdater
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            // Fundo escuro semi-transparente
-            using (var brush = new SolidBrush(Color.FromArgb(185, 15, 15, 25)))
+            // Fundo preto sólido
+            using (var brush = new SolidBrush(Color.Black))
                 e.Graphics.FillRectangle(brush, ClientRectangle);
         }
 
