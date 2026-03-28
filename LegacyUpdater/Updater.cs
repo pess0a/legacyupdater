@@ -281,7 +281,7 @@ namespace LegacyUpdater
             try
             {
                 // ── 1. Download base.zip (0 → 40%) ──────────────────────
-                progress?.Report((0, string.Format(Config.STATUS_DOWNLOADING_BASE, 0)));
+                progress?.Report((0, Config.STATUS_DOWNLOADING_BASE));
 
                 var baseInfo = await GetBaseInfoAsync(ct);
 
@@ -291,7 +291,7 @@ namespace LegacyUpdater
                     new Progress<int>(p =>
                         progress?.Report((
                             p * 40 / 100,
-                            string.Format(Config.STATUS_DOWNLOADING_BASE, p)))),
+                            Config.STATUS_DOWNLOADING_BASE))),
                     ct);
 
                 // ── 2. Extração base.zip (40 → 60%) ─────────────────────
@@ -307,7 +307,7 @@ namespace LegacyUpdater
                     ct);
 
                 // ── 3. Download update.zip (60 → 85%) ───────────────────
-                progress?.Report((60, string.Format(Config.STATUS_DOWNLOADING_UPDATE, 0)));
+                progress?.Report((60, Config.STATUS_DOWNLOADING_UPDATE));
 
                 await DownloadFileAsync(
                     versionInfo.Url,
@@ -315,7 +315,7 @@ namespace LegacyUpdater
                     new Progress<int>(p =>
                         progress?.Report((
                             60 + p * 25 / 100,
-                            string.Format(Config.STATUS_DOWNLOADING_UPDATE, p)))),
+                            Config.STATUS_DOWNLOADING_UPDATE))),
                     ct);
 
                 // ── 4. Extração update.zip (85 → 99%) ───────────────────
