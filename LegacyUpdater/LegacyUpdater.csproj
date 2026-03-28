@@ -50,10 +50,10 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
-      <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -78,20 +78,8 @@
   <ItemGroup>
     <Content Include="Resources\background.png" />
     <Content Include="Resources\icon.ico" />
-    <None Include="packages.config" />
     <None Include="app.manifest" />
   </ItemGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-
-  <!-- NuGet restore -->
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets"
-          Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing. Enable NuGet Package Restore to download them.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll')"
-           Text="$([System.String]::Format('$(ErrorText)', 'Newtonsoft.Json.13.0.3'))" />
-  </Target>
 </Project>
