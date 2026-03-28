@@ -57,6 +57,21 @@ namespace LegacyUpdater
             return info;
         }
 
+        /// <summary>
+        /// Consulta a API de base e retorna as informações do arquivo base.zip.
+        /// Espera resposta JSON: { "version": "x.y.z", "date": "yyyy-mm-dd", "url": "https://..." }
+        /// </summary>
+        public async Task<VersionInfo> GetBaseInfoAsync(CancellationToken ct = default)
+        {
+            var json = await _http.GetStringAsync(Config.BASE_ZIP_URL);
+            var info = JsonConvert.DeserializeObject<VersionInfo>(json);
+
+            if (info == null || string.IsNullOrWhiteSpace(info.Url))
+                throw new InvalidOperationException("A API de base retornou uma resposta inválida.");
+
+            return info;
+        }
+
         /// <summary>Retorna a versão instalada localmente, ou null se não houver.</summary>
         public string GetLocalVersion()
         {
@@ -268,8 +283,10 @@ namespace LegacyUpdater
                 // ── 1. Download base.zip (0 → 40%) ──────────────────────
                 progress?.Report((0, string.Format(Config.STATUS_DOWNLOADING_BASE, 0)));
 
+                var baseInfo = await GetBaseInfoAsync(ct);
+
                 await DownloadFileAsync(
-                    Config.BASE_ZIP_URL,
+                    baseInfo.Url,
                     baseZipPath,
                     new Progress<int>(p =>
                         progress?.Report((
