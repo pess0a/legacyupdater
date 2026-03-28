@@ -18,10 +18,10 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Restore NuGet packages
-        run: nuget restore LegacyUpdater.sln
+        run: msbuild LegacyUpdater.sln /t:Restore /p:Configuration=Release /p:Platform="Any CPU"
 
       - name: Build Release
-        run: msbuild LegacyUpdater.sln /p:Configuration=Release /p:Platform="Any CPU"
+        run: msbuild LegacyUpdater.sln /p:Configuration=Release /p:Platform="Any CPU" /p:GenerateResourceNeverLockTypeAssemblies=true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
