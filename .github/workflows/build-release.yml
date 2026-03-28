@@ -23,6 +23,21 @@ jobs:
       - name: Build Release
         run: msbuild LegacyUpdater.sln /p:Configuration=Release /p:Platform="Any CPU"
 
+      - name: Merge DLLs with ILRepack (single standalone EXE)
+        shell: pwsh
+        run: |
+          nuget install ILRepack -Version 2.0.33 -OutputDirectory tools -NonInteractive
+          $ilrepack = Get-ChildItem -Path tools -Filter ILRepack.exe -Recurse |
+                      Select-Object -First 1 -ExpandProperty FullName
+          $releaseDir = "LegacyUpdater/bin/Release"
+          $mainExe    = "$releaseDir/LegacyUpdater.exe"
+          $outExe     = "$releaseDir/LegacyUpdater-standalone.exe"
+          $dlls       = Get-ChildItem -Path $releaseDir -Filter "*.dll" |
+                        Select-Object -ExpandProperty FullName
+          & $ilrepack /target:winexe /out:$outExe $mainExe $dlls
+          # Substitui o exe original pelo standalone para simplificar o upload
+          Move-Item -Force $outExe $mainExe
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
