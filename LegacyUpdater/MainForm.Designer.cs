@@ -41,9 +41,8 @@ namespace LegacyUpdater
             LoadBackgroundImage();
 
             // ── panelOverlay ─────────────────────────────────────────────
-            int overlayTop = Config.WINDOW_HEIGHT - Config.OVERLAY_HEIGHT;
-            this.panelOverlay.Location = new Point(0, overlayTop);
-            this.panelOverlay.Size     = new Size(Config.WINDOW_WIDTH, Config.OVERLAY_HEIGHT);
+            this.panelOverlay.Location = new Point(0, 320);
+            this.panelOverlay.Size     = new Size(800, 180);
             this.panelOverlay.Controls.AddRange(new Control[]
             {
                 this.lblGameTitle,
@@ -59,7 +58,7 @@ namespace LegacyUpdater
             this.lblGameTitle.AutoSize  = false;
             this.lblGameTitle.Location  = new Point(20, 12);
             this.lblGameTitle.Size      = new Size(480, 40);
-            this.lblGameTitle.Text      = Config.GAME_NAME;
+            this.lblGameTitle.Text      = "Rookgaard Legacy";
             this.lblGameTitle.Font      = new Font("Segoe UI", 22f, FontStyle.Bold, GraphicsUnit.Point);
             this.lblGameTitle.ForeColor = Color.White;
             this.lblGameTitle.BackColor = Color.Transparent;
@@ -78,7 +77,7 @@ namespace LegacyUpdater
             this.lblStatus.AutoSize   = false;
             this.lblStatus.Location   = new Point(20, 58);
             this.lblStatus.Size       = new Size(760, 22);
-            this.lblStatus.Text       = Config.STATUS_CHECKING;
+            this.lblStatus.Text       = "Verificando atualizações...";
             this.lblStatus.Font       = new Font("Segoe UI", 9f, FontStyle.Regular, GraphicsUnit.Point);
             this.lblStatus.ForeColor  = Color.White;
             this.lblStatus.BackColor  = Color.Transparent;
@@ -104,7 +103,7 @@ namespace LegacyUpdater
             // ── btnPlay ──────────────────────────────────────────────────
             this.btnPlay.Location    = new Point(20, 120);
             this.btnPlay.Size        = new Size(170, 46);
-            this.btnPlay.Text        = Config.BTN_PLAY_TEXT;
+            this.btnPlay.Text        = "JOGAR";
             this.btnPlay.Font        = new Font("Segoe UI", 14f, FontStyle.Bold, GraphicsUnit.Point);
             this.btnPlay.BackColor   = Color.FromArgb(30, 160, 70);
             this.btnPlay.ForeColor   = Color.White;
@@ -119,7 +118,7 @@ namespace LegacyUpdater
             // ── btnForceUpdate ───────────────────────────────────────────
             this.btnForceUpdate.Location  = new Point(202, 127);
             this.btnForceUpdate.Size      = new Size(160, 32);
-            this.btnForceUpdate.Text      = Config.BTN_FORCE_UPDATE_TEXT;
+            this.btnForceUpdate.Text      = "Forçar Update";
             this.btnForceUpdate.Font      = new Font("Segoe UI", 9f, FontStyle.Regular, GraphicsUnit.Point);
             this.btnForceUpdate.BackColor = Color.FromArgb(70, 70, 80);
             this.btnForceUpdate.ForeColor = Color.White;
@@ -132,13 +131,13 @@ namespace LegacyUpdater
             // ── MainForm ─────────────────────────────────────────────────
             this.AutoScaleDimensions = new SizeF(96F, 96F);
             this.AutoScaleMode       = AutoScaleMode.Dpi;
-            this.ClientSize          = new Size(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+            this.ClientSize          = new Size(800, 500);
             this.Controls.Add(this.panelOverlay);   // overlay na frente
             this.Controls.Add(this.picBackground);  // fundo atrás
             this.FormBorderStyle     = FormBorderStyle.FixedSingle;
             this.MaximizeBox         = false;
             this.StartPosition       = FormStartPosition.CenterScreen;
-            this.Text                = Config.GAME_NAME + " Updater";
+            this.Text                = "Rookgaard Legacy Updater";
             this.BackColor           = Color.FromArgb(18, 18, 28);
             this.Load               += new System.EventHandler(this.MainForm_Load);
 
