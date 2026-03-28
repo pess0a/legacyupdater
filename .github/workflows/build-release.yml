@@ -17,8 +17,11 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+
       - name: Restore NuGet packages
-        run: nuget restore LegacyUpdater.sln
+        run: msbuild LegacyUpdater.sln /t:Restore /p:Configuration=Release /p:Platform="Any CPU"
 
       - name: Build Release
         run: msbuild LegacyUpdater.sln /p:Configuration=Release /p:Platform="Any CPU"
