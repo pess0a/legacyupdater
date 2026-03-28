@@ -26,14 +26,17 @@ jobs:
       - name: Build Release
         run: msbuild LegacyUpdater.sln /p:Configuration=Release /p:Platform="Any CPU"
 
+      - name: Package Release ZIP
+        run: Compress-Archive -Path LegacyUpdater\bin\Release\* -DestinationPath LegacyUpdater.zip
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: LegacyUpdater
-          path: LegacyUpdater/bin/Release/LegacyUpdater.exe
+          path: LegacyUpdater.zip
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: LegacyUpdater/bin/Release/LegacyUpdater.exe
+          files: LegacyUpdater.zip
