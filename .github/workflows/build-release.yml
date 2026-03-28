@@ -14,6 +14,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Inject images from secrets
+        shell: pwsh
+        run: |
+          if ($env:BACKGROUND_PNG) {
+            [System.IO.File]::WriteAllBytes(
+              "LegacyUpdater/Resources/background.png",
+              [System.Convert]::FromBase64String($env:BACKGROUND_PNG)
+            )
+            Write-Host "background.png injetado com sucesso."
+          } else {
+            Write-Warning "Secret BACKGROUND_PNG nao encontrado — usando placeholder."
+          }
+          if ($env:ICON_ICO) {
+            [System.IO.File]::WriteAllBytes(
+              "LegacyUpdater/Resources/icon.ico",
+              [System.Convert]::FromBase64String($env:ICON_ICO)
+            )
+            Write-Host "icon.ico injetado com sucesso."
+          } else {
+            Write-Warning "Secret ICON_ICO nao encontrado — usando placeholder."
+          }
+        env:
+          BACKGROUND_PNG: ${{ secrets.BACKGROUND_PNG }}
+          ICON_ICO: ${{ secrets.ICON_ICO }}
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
