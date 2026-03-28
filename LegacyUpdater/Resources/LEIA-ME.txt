@@ -1,0 +1,21 @@
+RECURSOS DO UPDATER — Rookgaard Legacy
+=======================================
+
+Coloque os seguintes arquivos nesta pasta:
+
+  background.png
+    Imagem de fundo exibida na janela do updater.
+    Tamanho recomendado: 800 x 500 pixels (ou proporcional).
+    Formato: PNG ou JPG.
+
+  icon.ico
+    Ícone da aplicação exibido na barra de tarefas e no executável.
+    Tamanho recomendado: 256x256, 64x64, 48x48, 32x32, 16x16 (multi-resolução).
+    Formato: ICO.
+
+IMPORTANTE:
+  Após adicionar os arquivos, recompile o projeto no Visual Studio
+  para que o ícone seja incorporado ao executável.
+
+  O background.png é carregado em tempo de execução — basta substituir
+  o arquivo na pasta Resources ao lado do .exe sem recompilar.
