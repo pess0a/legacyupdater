@@ -58,7 +58,7 @@ namespace LegacyUpdater
         ///   "url":     "https://example.com/update.zip"
         /// }
         /// </summary>
-        public const string VERSION_API_URL = "https://example.com/api/version";
+        public const string VERSION_API_URL = "https://rookgaardlegacy.com/updater/api/update";
 
         /// <summary>
         /// URL do arquivo base.zip — instalação completa do zero.
