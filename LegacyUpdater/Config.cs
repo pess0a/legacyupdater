@@ -102,14 +102,14 @@ namespace LegacyUpdater
         /// <summary>Jogo já está na versão mais recente.</summary>
         public const string STATUS_UP_TO_DATE = "Jogo atualizado! Pronto para jogar.";
 
-        /// <summary>Baixando base.zip. Use {0} para o percentual.</summary>
-        public const string STATUS_DOWNLOADING_BASE = "Baixando arquivos base... {0}%";
+        /// <summary>Baixando base.zip.</summary>
+        public const string STATUS_DOWNLOADING_BASE = "Baixando arquivos base...";
 
         /// <summary>Extraindo base.zip.</summary>
         public const string STATUS_EXTRACTING_BASE = "Extraindo arquivos base...";
 
-        /// <summary>Baixando update.zip. Use {0} para o percentual.</summary>
-        public const string STATUS_DOWNLOADING_UPDATE = "Baixando atualização... {0}%";
+        /// <summary>Baixando update.zip.</summary>
+        public const string STATUS_DOWNLOADING_UPDATE = "Baixando atualização...";
 
         /// <summary>Extraindo update.zip.</summary>
         public const string STATUS_EXTRACTING_UPDATE = "Instalando atualização...";

@@ -62,6 +62,7 @@ namespace LegacyUpdater
             this.lblGameTitle.Text      = Config.GAME_NAME;
             this.lblGameTitle.Font      = new Font("Segoe UI", 22f, FontStyle.Bold, GraphicsUnit.Point);
             this.lblGameTitle.ForeColor = Color.White;
+            this.lblGameTitle.BackColor = Color.Transparent;
 
             // ── lblVersion ───────────────────────────────────────────────
             this.lblVersion.AutoSize   = false;
@@ -69,7 +70,8 @@ namespace LegacyUpdater
             this.lblVersion.Size       = new Size(270, 24);
             this.lblVersion.Text       = "Carregando...";
             this.lblVersion.Font       = new Font("Segoe UI", 9.5f, FontStyle.Regular, GraphicsUnit.Point);
-            this.lblVersion.ForeColor  = Color.FromArgb(200, 200, 200);
+            this.lblVersion.ForeColor  = Color.White;
+            this.lblVersion.BackColor  = Color.Transparent;
             this.lblVersion.TextAlign  = ContentAlignment.MiddleRight;
 
             // ── lblStatus ────────────────────────────────────────────────
@@ -78,7 +80,8 @@ namespace LegacyUpdater
             this.lblStatus.Size       = new Size(760, 22);
             this.lblStatus.Text       = Config.STATUS_CHECKING;
             this.lblStatus.Font       = new Font("Segoe UI", 9f, FontStyle.Regular, GraphicsUnit.Point);
-            this.lblStatus.ForeColor  = Color.FromArgb(255, 240, 180);
+            this.lblStatus.ForeColor  = Color.White;
+            this.lblStatus.BackColor  = Color.Transparent;
 
             // ── progressBar ──────────────────────────────────────────────
             this.progressBar.Location = new Point(20, 86);
@@ -95,6 +98,7 @@ namespace LegacyUpdater
             this.lblPercent.Text      = "0%";
             this.lblPercent.Font      = new Font("Segoe UI", 8.5f, FontStyle.Regular, GraphicsUnit.Point);
             this.lblPercent.ForeColor = Color.White;
+            this.lblPercent.BackColor = Color.Transparent;
             this.lblPercent.TextAlign = ContentAlignment.MiddleRight;
 
             // ── btnPlay ──────────────────────────────────────────────────
@@ -113,12 +117,12 @@ namespace LegacyUpdater
             this.btnPlay.Click      += new System.EventHandler(this.btnPlay_Click);
 
             // ── btnForceUpdate ───────────────────────────────────────────
-            this.btnForceUpdate.Location  = new Point(202, 128);
+            this.btnForceUpdate.Location  = new Point(202, 127);
             this.btnForceUpdate.Size      = new Size(160, 32);
             this.btnForceUpdate.Text      = Config.BTN_FORCE_UPDATE_TEXT;
             this.btnForceUpdate.Font      = new Font("Segoe UI", 9f, FontStyle.Regular, GraphicsUnit.Point);
             this.btnForceUpdate.BackColor = Color.FromArgb(70, 70, 80);
-            this.btnForceUpdate.ForeColor = Color.FromArgb(220, 220, 220);
+            this.btnForceUpdate.ForeColor = Color.White;
             this.btnForceUpdate.FlatStyle = FlatStyle.Flat;
             this.btnForceUpdate.FlatAppearance.BorderSize = 0;
             this.btnForceUpdate.FlatAppearance.MouseOverBackColor = Color.FromArgb(90, 90, 100);
