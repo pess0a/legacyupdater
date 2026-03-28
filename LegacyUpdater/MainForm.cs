@@ -152,6 +152,7 @@ namespace LegacyUpdater
             try
             {
                 await _updater.RunFullUpdateAsync(_remoteVersion, progress, _cts.Token);
+                ShortcutHelper.CreateDesktopShortcut();
                 SetBusy(false);
             }
             catch (OperationCanceledException)
