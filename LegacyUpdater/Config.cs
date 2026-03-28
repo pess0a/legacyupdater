@@ -16,7 +16,7 @@ namespace LegacyUpdater
         public const string GAME_NAME = "Rookgaard Legacy";
 
         /// <summary>Nome do executável do jogo dentro da pasta de instalação.</summary>
-        public const string GAME_EXECUTABLE = "bin\client.exe";
+        public const string GAME_EXECUTABLE = @"bin\client.exe";
 
         /// <summary>Versão do próprio updater (exibida na barra de título).</summary>
         public const string UPDATER_VERSION = "1.0.0";
