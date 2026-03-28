@@ -41,7 +41,7 @@ namespace LegacyUpdater
 
                 lblVersion.Text = $"Base: v{_baseVersion.Version}   Update: v{_remoteVersion.Version}   ({_remoteVersion.Date})";
 
-                var localVersion  = _updater.GetLocalVersion();
+                var localVersion  = _updater.GetLocalUpdateVersion();
                 var exePath       = Path.Combine(Config.INSTALL_DIR, Config.GAME_EXECUTABLE);
                 var gameInstalled = File.Exists(exePath);
 
@@ -84,10 +84,13 @@ namespace LegacyUpdater
 
             try
             {
-                _updater.ClearLocalVersion();
+                _updater.ClearLocalVersions();
 
                 if (_remoteVersion == null)
                     _remoteVersion = await _updater.GetRemoteVersionInfoAsync();
+
+                if (_baseVersion == null)
+                    _baseVersion = await _updater.GetBaseInfoAsync();
 
                 await RunUpdateAsync();
             }
@@ -152,7 +155,7 @@ namespace LegacyUpdater
 
             try
             {
-                await _updater.RunFullUpdateAsync(_remoteVersion, progress, _cts.Token);
+                await _updater.RunFullUpdateAsync(_baseVersion, _remoteVersion, progress, _cts.Token);
                 ShortcutHelper.CreateDesktopShortcut();
                 SetBusy(false);
             }

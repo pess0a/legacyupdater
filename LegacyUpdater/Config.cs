@@ -36,8 +36,11 @@ namespace LegacyUpdater
         /// </summary>
         public const string INSTALL_DIR = @"C:\Rookgaard Legacy";
 
-        /// <summary>Nome do arquivo que armazena a versão instalada localmente.</summary>
+        /// <summary>Nome do arquivo que armazena a versão do update instalada localmente.</summary>
         public const string VERSION_FILE = "version.txt";
+
+        /// <summary>Nome do arquivo que armazena a versão do base instalada localmente.</summary>
+        public const string BASE_VERSION_FILE = "version_base.txt";
 
         /// <summary>Nome temporário do arquivo base durante o download.</summary>
         public const string BASE_ZIP_FILENAME = "base.zip";
