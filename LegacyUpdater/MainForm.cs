@@ -17,6 +17,7 @@ namespace LegacyUpdater
         public MainForm()
         {
             InitializeComponent();
+            LoadBackgroundImage();
             Text = $"{Config.GAME_NAME} — Updater v{Config.UPDATER_VERSION}";
         }
 
