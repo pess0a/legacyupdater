@@ -147,8 +147,26 @@ namespace LegacyUpdater
             {
                 Directory.CreateDirectory(destDir);
 
-                using (var archive = ZipFile.OpenRead(zipPath))
+                ZipArchive archive;
+                try
                 {
+                    archive = ZipFile.OpenRead(zipPath);
+                }
+                catch (InvalidDataException ex)
+                {
+                    TryDelete(zipPath);
+                    throw new InvalidDataException(
+                        $"O arquivo ZIP está corrompido ou incompleto: {Path.GetFileName(zipPath)}. " +
+                        "O arquivo foi removido — tente novamente para refazer o download.", ex);
+                }
+
+                using (archive)
+                {
+                    // Normaliza o diretório destino com separador no final para comparação segura
+                    var fullDestDir = Path.GetFullPath(destDir);
+                    if (!fullDestDir.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                        fullDestDir += Path.DirectorySeparatorChar;
+
                     int total = archive.Entries.Count;
                     int done = 0;
 
@@ -156,7 +174,11 @@ namespace LegacyUpdater
                     {
                         ct.ThrowIfCancellationRequested();
 
-                        var destPath = Path.Combine(destDir, entry.FullName);
+                        // Proteção contra path traversal (zip slip)
+                        var destPath = Path.GetFullPath(Path.Combine(destDir, entry.FullName));
+                        if (!destPath.StartsWith(fullDestDir, StringComparison.OrdinalIgnoreCase))
+                            throw new InvalidOperationException(
+                                $"Entrada ZIP inválida detectada (possível path traversal): {entry.FullName}");
 
                         // Entrada de diretório
                         if (entry.FullName.EndsWith("/") || entry.FullName.EndsWith("\\"))
