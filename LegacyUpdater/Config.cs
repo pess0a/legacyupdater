@@ -21,6 +21,9 @@ namespace LegacyUpdater
         /// <summary>Nome do executável do launcher/updater. O atalho do Desktop aponta para este arquivo.</summary>
         public const string LAUNCHER_EXECUTABLE = "LegacyUpdater.exe";
 
+        /// <summary>DLLs que devem ser copiadas junto com o launcher para a pasta de instalação.</summary>
+        public static readonly string[] LAUNCHER_DEPENDENCIES = { "Newtonsoft.Json.dll" };
+
         /// <summary>Versão do próprio updater (exibida na barra de título).</summary>
         public const string UPDATER_VERSION = "1.0.0";
 

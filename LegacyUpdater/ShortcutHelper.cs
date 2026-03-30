@@ -17,8 +17,8 @@ namespace LegacyUpdater
             {
                 var launcherDest = Path.Combine(Config.INSTALL_DIR, Config.LAUNCHER_EXECUTABLE);
 
-                // Copia o launcher para a pasta do jogo, sobrescrevendo se já existir,
-                // a menos que já seja o mesmo arquivo (usuário já o executa de lá).
+                // Copia o launcher e suas dependências para a pasta do jogo, sobrescrevendo
+                // se já existir, a menos que já seja o mesmo arquivo (usuário já o executa de lá).
                 var launcherSource = Assembly.GetExecutingAssembly().Location;
                 if (!string.IsNullOrEmpty(launcherSource) &&
                     File.Exists(launcherSource) &&
@@ -26,6 +26,16 @@ namespace LegacyUpdater
                 {
                     Directory.CreateDirectory(Config.INSTALL_DIR);
                     File.Copy(launcherSource, launcherDest, overwrite: true);
+
+                    // Copia dependências que ficam no mesmo diretório do launcher
+                    var sourceDir = Path.GetDirectoryName(launcherSource);
+                    foreach (var dll in Config.LAUNCHER_DEPENDENCIES)
+                    {
+                        var src  = Path.Combine(sourceDir, dll);
+                        var dest = Path.Combine(Config.INSTALL_DIR, dll);
+                        if (File.Exists(src))
+                            File.Copy(src, dest, overwrite: true);
+                    }
                 }
 
                 var desktopPath  = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
