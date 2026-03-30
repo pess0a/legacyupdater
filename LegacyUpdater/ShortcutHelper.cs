@@ -7,23 +7,27 @@ namespace LegacyUpdater
     internal static class ShortcutHelper
     {
         /// <summary>
-        /// Cria (ou substitui) um atalho no Desktop do usuário apontando para o launcher (updater),
-        /// garantindo que o usuário sempre abra o jogo pelo launcher e receba atualizações.
+        /// Copia o launcher para a pasta de instalação do jogo (se necessário) e cria (ou
+        /// substitui) um atalho no Desktop apontando para esse caminho fixo. Assim o atalho
+        /// permanece válido mesmo que o usuário mova o arquivo original do launcher.
         /// </summary>
         internal static void CreateDesktopShortcut()
         {
             try
             {
-                // Usa o caminho do próprio executável em execução como alvo do atalho,
-                // de forma que o atalho sempre aponte para o launcher correto.
-                var launcherPath = Assembly.GetExecutingAssembly().Location;
+                var launcherDest = Path.Combine(Config.INSTALL_DIR, Config.LAUNCHER_EXECUTABLE);
 
-                // Fallback: se por algum motivo não for possível obter o caminho via reflection,
-                // usa o caminho esperado dentro do diretório de instalação.
-                if (string.IsNullOrEmpty(launcherPath) || !File.Exists(launcherPath))
-                    launcherPath = Path.Combine(Config.INSTALL_DIR, Config.LAUNCHER_EXECUTABLE);
+                // Copia o launcher para a pasta do jogo, sobrescrevendo se já existir,
+                // a menos que já seja o mesmo arquivo (usuário já o executa de lá).
+                var launcherSource = Assembly.GetExecutingAssembly().Location;
+                if (!string.IsNullOrEmpty(launcherSource) &&
+                    File.Exists(launcherSource) &&
+                    !string.Equals(launcherSource, launcherDest, StringComparison.OrdinalIgnoreCase))
+                {
+                    Directory.CreateDirectory(Config.INSTALL_DIR);
+                    File.Copy(launcherSource, launcherDest, overwrite: true);
+                }
 
-                var launcherDir  = Path.GetDirectoryName(launcherPath);
                 var desktopPath  = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                 var shortcutPath = Path.Combine(desktopPath, Config.GAME_NAME + ".lnk");
 
@@ -31,10 +35,10 @@ namespace LegacyUpdater
                 dynamic shell    = Activator.CreateInstance(shellType);
                 dynamic shortcut = shell.CreateShortcut(shortcutPath);
 
-                shortcut.TargetPath       = launcherPath;
-                shortcut.WorkingDirectory = launcherDir;
+                shortcut.TargetPath       = launcherDest;
+                shortcut.WorkingDirectory = Config.INSTALL_DIR;
                 shortcut.Description      = Config.GAME_NAME;
-                shortcut.IconLocation     = launcherPath + ",0";
+                shortcut.IconLocation     = launcherDest + ",0";
                 shortcut.Save();
             }
             catch
