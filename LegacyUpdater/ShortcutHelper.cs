@@ -1,29 +1,44 @@
 using System;
 using System.IO;
+using System.Reflection;
 
 namespace LegacyUpdater
 {
     internal static class ShortcutHelper
     {
         /// <summary>
-        /// Cria (ou substitui) um atalho no Desktop do usuário apontando para o executável do jogo.
+        /// Copia o launcher para a pasta de instalação do jogo (se necessário) e cria (ou
+        /// substitui) um atalho no Desktop apontando para esse caminho fixo. Assim o atalho
+        /// permanece válido mesmo que o usuário mova o arquivo original do launcher.
         /// </summary>
         internal static void CreateDesktopShortcut()
         {
             try
             {
+                var launcherDest = Path.Combine(Config.INSTALL_DIR, Config.LAUNCHER_EXECUTABLE);
+
+                // Copia o launcher para a pasta do jogo, sobrescrevendo se já existir,
+                // a menos que já seja o mesmo arquivo (usuário já o executa de lá).
+                var launcherSource = Assembly.GetExecutingAssembly().Location;
+                if (!string.IsNullOrEmpty(launcherSource) &&
+                    File.Exists(launcherSource) &&
+                    !string.Equals(launcherSource, launcherDest, StringComparison.OrdinalIgnoreCase))
+                {
+                    Directory.CreateDirectory(Config.INSTALL_DIR);
+                    File.Copy(launcherSource, launcherDest, overwrite: true);
+                }
+
                 var desktopPath  = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                 var shortcutPath = Path.Combine(desktopPath, Config.GAME_NAME + ".lnk");
-                var targetPath   = Path.Combine(Config.INSTALL_DIR, Config.GAME_EXECUTABLE);
 
                 Type   shellType = Type.GetTypeFromProgID("WScript.Shell");
                 dynamic shell    = Activator.CreateInstance(shellType);
                 dynamic shortcut = shell.CreateShortcut(shortcutPath);
 
-                shortcut.TargetPath       = targetPath;
+                shortcut.TargetPath       = launcherDest;
                 shortcut.WorkingDirectory = Config.INSTALL_DIR;
                 shortcut.Description      = Config.GAME_NAME;
-                shortcut.IconLocation     = targetPath + ",0";
+                shortcut.IconLocation     = launcherDest + ",0";
                 shortcut.Save();
             }
             catch

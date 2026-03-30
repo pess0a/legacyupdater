@@ -18,6 +18,9 @@ namespace LegacyUpdater
         /// <summary>Nome do executável do jogo dentro da pasta de instalação.</summary>
         public const string GAME_EXECUTABLE = @"bin\client.exe";
 
+        /// <summary>Nome do executável do launcher/updater. O atalho do Desktop aponta para este arquivo.</summary>
+        public const string LAUNCHER_EXECUTABLE = "LegacyUpdater.exe";
+
         /// <summary>Versão do próprio updater (exibida na barra de título).</summary>
         public const string UPDATER_VERSION = "1.0.0";
 
